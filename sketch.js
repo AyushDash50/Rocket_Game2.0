@@ -11,7 +11,8 @@ function preload(){
 BgImg = loadImage("SpaceBg.png");
 
 crash = loadSound("crash.mp3")
-RocketImg = loadImage("Rocket1.png")
+RocketImg = loadImage("InsaneROCKET.png")
+//RocketImg = loadAnimation("R1.png","R2.png", "R3.png", "R3.png");
 
 ObstacleImg = loadImage("AsteroidImage.png")
 Obstacle2Img = loadImage("Asteroid2Image.png")
@@ -29,6 +30,7 @@ life1Img = loadImage("Heart5Img.png");
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
+  RocketImg.frameDelay = 10;
   // Space background
   SpaceBg = createSprite(windowWidth/2, windowHeight/2, 50, 50);
   SpaceBg.addImage("BgImg", BgImg);
@@ -37,9 +39,10 @@ function setup() {
   
 // Rocket
   Rocket = createSprite(180,windowHeight/2); 
-Rocket.addImage(RocketImg);
-Rocket.scale = 1.75;
-Rocket.setCollider("rectangle",0,10,90,50);
+Rocket.addAnimation("rocket",RocketImg);
+Rocket.scale = 0.75;
+Rocket.setCollider("rectangle",0,10,290,140);
+//Rocket.debug = true
 
   //create Obstacle group
   obstaclesGroup = createGroup();
@@ -49,36 +52,41 @@ Rocket.setCollider("rectangle",0,10,90,50);
 
   life = 5;
 
-  Gamestate = "Play";
-  
+  Gamestate = "Start";
+
   resetButton = createSprite(windowWidth/2 , windowHeight/2+100);
   //add reset image
   resetButton.addImage(RestartImg);
+
+  resetButton.visible = false;
 }
 
 function draw() {
   background(0);
+
+ 
  //resetting the background
-  
  if(SpaceBg.x<windowWidth/2-100){
   SpaceBg.x = windowWidth/2
 }
 
  if (Gamestate === "Play"){
-         
-  resetButton.visible = false;
+     
     
 //move rocket up
-  if(keyDown("w")){
+  if(keyDown("w") || touches.length>0){
     Rocket.y -=4
+    touches = [];
   }  
 //move rocket down
-  if(keyDown("s")){
+  if(keyDown("s") || touches.length>0){
     Rocket.y +=4
+    touches = [];
   }  
 //move rocket forward
-  if(keyDown("d")){
+  if(keyDown("d") || touches.length>0){
     Rocket.x +=2
+    touches = [];
   }  
   //reseting rocket if it goes too front
   if(Rocket.x>windowWidth-900){
@@ -122,6 +130,17 @@ function draw() {
  drawSprites();
   //Life image
   heart();
+  // start the game by pressing space
+  if(Gamestate === "Start"){
+    textSize(32)
+    fill ("blue")
+    text ("Press Space to Start" ,windowWidth/2-50, windowHeight/2)
+  }
+ 
+  if(Gamestate === "Start" && keyDown("space")) {
+    Gamestate = "Play";
+
+  }
  //gamestate end
   if (Gamestate === "end"){
       fill("red");
@@ -133,8 +152,9 @@ function draw() {
       
       resetButton.visible = true;
       
-      if(mousePressedOver(resetButton)){
+      if(mousePressedOver(resetButton) || touches.length>0){
         restart();
+        touches = [];
       }
   }
 
@@ -165,6 +185,7 @@ function restart(){
   score = 0;
   life = 5;
   obstaclesGroup.destroyEach();
+  resetButton.visible = false;
 }
 
 
