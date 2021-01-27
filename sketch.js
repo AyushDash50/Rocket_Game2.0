@@ -132,7 +132,7 @@ if(doomcounter>0){
       if(Rocket.isTouching(obstaclesGroup.get(i))){
         obstaclesGroup.get(i).destroy();
         crashcounter = 20;  
-  crash.play();
+//  crash.play();
         life--
          //add code to remove life image;
     
