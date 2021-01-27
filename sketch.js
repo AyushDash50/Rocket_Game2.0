@@ -5,12 +5,15 @@ var Rocket;
 var score ,highscore , life;
 var obstaclesGroup;
 var Gamestate;
+var crashcounter = 0;
+var doomcounter = 0;
 
 // preloading images and sound
 function preload(){
 BgImg = loadImage("SpaceBg.png");
 
 crash = loadSound("crash.mp3")
+checkPointSound = loadSound("checkPointcopy.mp3")
 RocketImg = loadImage("InsaneROCKET.png")
 //RocketImg = loadAnimation("R1.png","R2.png", "R3.png", "R3.png");
 
@@ -25,6 +28,8 @@ life4Img = loadImage("Heart2Img.png");
 life3Img = loadImage("Heart3Img.png");
 life2Img = loadImage("Heart4Img.png");
 life1Img = loadImage("Heart5Img.png");
+
+crashImg = loadImage("BoomImg.png");
 }
 
 
@@ -53,11 +58,9 @@ Rocket.setCollider("rectangle",0,10,290,140);
   life = 5;
 
   Gamestate = "Start";
-
+//add reset button
   resetButton = createSprite(windowWidth/2 , windowHeight/2+100);
-  //add reset image
-  resetButton.addImage(RestartImg);
-
+   resetButton.addImage(RestartImg);
   resetButton.visible = false;
 }
 
@@ -104,20 +107,35 @@ function draw() {
     Rocket.x = 180;  
     Rocket.y = windowHeight/2;
   }
-  
+  //giving score
   score = score + Math.round(getFrameRate() / 60);
+
+  if (score > 0 && score % 100 === 0) {
+    checkPointSound.play()
+  }
  
   //spawn obstacles 
   Obstacle();
+ 
+// Obstacles from behind
+  if(frameCount % 1400 === 0){
+    doomcounter = 5;
+   // warning sound
+ }
+if(doomcounter>0){
+ ObstaclesDoom();
+}
+
 // check is touching and destroy the asteroid. Also reduce the life 
   if(life >0){
     for(var i=0; i< obstaclesGroup.length;i++){
       if(Rocket.isTouching(obstaclesGroup.get(i))){
         obstaclesGroup.get(i).destroy();
-//        crash.play();
+        crashcounter = 20;  
+  crash.play();
         life--
          //add code to remove life image;
-
+    
       }
     }
 
@@ -127,6 +145,7 @@ function draw() {
     
     
   }
+  
  drawSprites();
   //Life image
   heart();
@@ -134,12 +153,20 @@ function draw() {
   if(Gamestate === "Start"){
     textSize(32)
     fill ("blue")
-    text ("Press Space to Start" ,windowWidth/2-50, windowHeight/2)
+    text ("Press Space to Start" ,windowWidth/2-150, windowHeight/2);
+    text("To move use W S D keys", windowWidth/2-170 , windowHeight/2-70);
   }
- 
-  if(Gamestate === "Start" && keyDown("space")) {
-    Gamestate = "Play";
+ //display boom image 
+  if(crashcounter>0){
+   
+    image(crashImg, Rocket.x+50,Rocket.y-50,120,120);
+    crashcounter--;
+} 
 
+// start game by hitting space bar
+  if(Gamestate === "Start" && (keyDown("space") || touches.length>0)) {
+    Gamestate = "Play";
+    touches = [];
   }
  //gamestate end
   if (Gamestate === "end"){
@@ -162,16 +189,14 @@ function draw() {
 fill ("blue");
 stroke("yellow");
 textSize(32);
-text("Score: " + score, windowWidth-340, 125);
-
+text("Score: " + score, windowWidth-340, 75);
+//display high score
 if(highscore>0){
-   
-  text("High Score: " + highscore, windowWidth-340, 75);
+  fill ("blue");
+  stroke("yellow"); 
+  text("High Score: " + highscore, windowWidth-340, 125);
 
 }
-
-fill("blue");
-text("To move use W S D keys", windowWidth/2-70 , 75);
 
 }
 //restarting the game
@@ -227,6 +252,7 @@ function Obstacle(){
    }
 
 }
+// display life
 function heart(){
   switch (life) {
    case 1:
@@ -256,4 +282,39 @@ function heart(){
       image(life5Img, 500,30,75,75)
       break;
   }  
+}
+
+//function for obstacles from behind
+function ObstaclesDoom(){
+  
+  if(frameCount % 30 === 0){
+ 
+ obstacle = createSprite(0,Math.round(random(2,windowHeight-2)),50,50);
+ obstacle.velocityX = +(8 + score / 100);
+ 
+
+ //generate random obstacles
+ var rand = Math.round(random(1,3));
+ switch (rand) {
+   case 1:
+     obstacle.addImage(ObstacleImg);
+     break;
+   case 2:
+     obstacle.addImage(Obstacle2Img);
+     break;
+   case 3:
+     obstacle.addImage(Obstacle4Img);
+     obstacle.setCollider("rectangle",0,0,60,60);
+     break;  
+ }  
+    //Giving obstacle lifetime
+    obstacle.lifetime = 159;
+
+  // obstacle.debug = true
+
+    //Adding into group
+    obstaclesGroup.add(obstacle);
+    doomcounter--;
+}
+
 }
