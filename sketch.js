@@ -77,22 +77,22 @@ function draw() {
      
     
 //move rocket up
-  if(keyDown("w") || touches.length>0){
+  if(keyDown("w") || touches.length>0 || (keyDown("UP_ARROW"))){
     Rocket.y -=4
     touches = [];
   }  
 //move rocket down
-  if(keyDown("s") || touches.length>0){
+  if(keyDown("s") || touches.length>0 || (keyDown("DOWN_ARROW"))){
     Rocket.y +=4
     touches = [];
   }  
 //move rocket forward
-  if(keyDown("d") || touches.length>0){
+  if(keyDown("d") || touches.length>0 || (keyDown("RIGHT_ARROW"))){
     Rocket.x +=2
     touches = [];
   }  
   //reseting rocket if it goes too front
-  if(Rocket.x>windowWidth-900){
+  if(Rocket.x>windowWidth-500){
     Rocket.x = 180;    
   }
 
@@ -153,8 +153,10 @@ if(doomcounter>0){
   if(Gamestate === "Start"){
     textSize(32)
     fill ("blue")
-    text ("Press Space to Start" ,windowWidth/2-150, windowHeight/2);
-    text("To move use W S D keys", windowWidth/2-170 , windowHeight/2-70);
+    text ("Press Space to Start" ,windowWidth/2-170, windowHeight/2+50);
+    text("To move up use W or up arrow key", windowWidth/2-285 , windowHeight/2-100);
+    text("To move down use s or down arrow key", windowWidth/2-285 , windowHeight/2-60);
+    text("To move front use d or right arrow key", windowWidth/2-285 , windowHeight/2-20);
   }
  //display boom image 
   if(crashcounter>0){
@@ -179,7 +181,7 @@ if(doomcounter>0){
       
       resetButton.visible = true;
       
-      if(mousePressedOver(resetButton) || touches.length>0){
+      if(mousePressedOver(resetButton) || touches.length>0 || keyDown("r")){
         restart();
         touches = [];
       }
